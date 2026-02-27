@@ -9,10 +9,7 @@ type Props = {
   limit?: number;
 };
 
-export default function AdminSlideshow({
-  intervalMs = 3500,
-  limit = 200,
-}: Props) {
+export default function AdminSlideshow({ intervalMs = 3500, limit = 200 }: Props) {
   const [images, setImages] = useState<SlideshowImage[]>([]);
   const [idx, setIdx] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -53,18 +50,18 @@ export default function AdminSlideshow({
     }
 
     clear();
-    timerRef.current = window.setInterval(async () => {
+
+    timerRef.current = window.setInterval(() => {
       // start fade out
       setFadeIn(false);
 
       // wait for fade-out
-      window.setTimeout(async () => {
+      window.setTimeout(() => {
         setIdx((prev) => {
           const next = prev + 1;
 
           // Wrap -> refresh list
           if (next >= images.length) {
-            // Refresh asynchronously; keep showing last image until refresh completes
             refresh();
             return 0;
           }
@@ -95,23 +92,21 @@ export default function AdminSlideshow({
         </button>
       </div>
 
-      <div className="flex-1 border rounded overflow-hidden bg-black/5 flex items-center justify-center">
+      <div className="flex-1 border rounded overflow-hidden bg-black/5 flex items-center justify-center p-4">
         {loading && <p className="text-sm opacity-70">Laster bilder…</p>}
 
-        {!loading && error && (
-          <p className="text-sm text-red-600 p-4">{error}</p>
-        )}
+        {!loading && error && <p className="text-sm text-red-600 p-4">{error}</p>}
 
         {!loading && !error && images.length === 0 && (
           <p className="text-sm opacity-70 p-4">Ingen bilder er tatt ennå</p>
         )}
-        
+
         {!loading && !error && current && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={current.url}
-            alt={current.url}
-            className={`max-h-full max-w-full object-contain transition-opacity duration-300 ${
+            alt={current.photo_path}
+            className={`object-contain max-h-[90vh] max-w-[90vw] transition-opacity duration-300 ${
               fadeIn ? "opacity-100" : "opacity-0"
             }`}
           />
