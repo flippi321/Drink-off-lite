@@ -81,11 +81,8 @@ export default function Leaderboard({ limit = 50, title = "Leaderboard" }: Props
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="text-sm opacity-70">
-                {r.drinks_count} drinks
-              </span>
               <span className="text-sm font-semibold tabular-nums">
-                {r.units_total} pts
+                {r.units_total} enheter
               </span>
             </div>
           </li>
@@ -98,16 +95,6 @@ export default function Leaderboard({ limit = 50, title = "Leaderboard" }: Props
     <section className="w-full">
       <div className="flex items-baseline justify-between mb-3">
         <h2 className="text-lg font-semibold">{title}</h2>
-        <button
-          type="button"
-          onClick={() => {
-            setLoading(true);
-            load();
-          }}
-          className="text-sm underline opacity-80 hover:opacity-100"
-        >
-          Refresh
-        </button>
       </div>
 
       {content}
