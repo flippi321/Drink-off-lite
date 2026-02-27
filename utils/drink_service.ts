@@ -1,6 +1,6 @@
 import { supabase } from "@/utils/supabase";
 
-export type DrinkType = "Beer" | "Wine" | "Shot" | "Other";
+export type DrinkType = "Øl" | "Vin" | "Shot" | "Annet";
 
 export type DrinkInsertResult = {
   drinkId: number;
