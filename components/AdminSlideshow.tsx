@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { fetchSlideshowImages, type SlideshowImage } from "@/utils/admin_images_service";
-import { type SlideshowImage } from "@/types/admin_img_types";
+import { fetchSlideshowImages } from "@/utils/admin_images_service";
+import type { SlideshowImage } from "@/types/admin_img_types";
 
 type Props = {
   intervalMs?: number;
