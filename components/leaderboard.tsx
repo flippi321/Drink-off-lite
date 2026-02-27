@@ -27,15 +27,44 @@ export default function Leaderboard({ limit = 50, title = "Leaderboard" }: Props
   }
 
   useEffect(() => {
-    load();
-    const unsubscribe = subscribeLeaderboard(() => {
-      // Debounce-ish: avoid hammering on bursts (simple guard)
-      load();
-    });
+  let isMounted = true;
+  let pollingTimer: number | null = null;
+  let loadingRef = false;
 
-    return () => unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [limit]);
+  async function safeLoad() {
+    if (loadingRef) return; // prevent overlapping fetches
+    loadingRef = true;
+
+    try {
+      const data = await fetchLeaderboard(limit);
+      if (isMounted) setRows(data);
+    } catch (e: any) {
+      if (isMounted) setError(e?.message ?? "Failed to load leaderboard");
+    } finally {
+      loadingRef = false;
+      if (isMounted) setLoading(false);
+    }
+  }
+
+  // Initial load
+  safeLoad();
+
+  // Realtime subscription
+  const unsubscribe = subscribeLeaderboard(() => {
+    safeLoad();
+  });
+
+  // Poll every 10 seconds
+  pollingTimer = window.setInterval(() => {
+    safeLoad();
+  }, 10000);
+
+  return () => {
+    isMounted = false;
+    unsubscribe();
+    if (pollingTimer) window.clearInterval(pollingTimer);
+  };
+}, [limit]);
 
   const content = useMemo(() => {
     if (loading) return <p className="text-sm opacity-70">Loading…</p>;
