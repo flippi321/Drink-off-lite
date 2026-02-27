@@ -34,7 +34,7 @@ export async function isUsernameTaken(username: string): Promise<boolean> {
 export async function registerUserWithUsername(username: string): Promise<LoginResult> {
   const trimmed = username.trim();
   if (trimmed.length < 2 || trimmed.length > 24) {
-    throw new Error("Username must be 2–24 characters.");
+    throw new Error("Brukernavn må være mellom 2 og 24 tegn.");
   }
 
   // Always create a session first
@@ -43,7 +43,7 @@ export async function registerUserWithUsername(username: string): Promise<LoginR
   const { data: userData, error: userErr } = await supabase.auth.getUser();
   if (userErr) throw new Error(userErr.message);
   const userId = userData.user?.id;
-  if (!userId) throw new Error("No authenticated user");
+  if (!userId) throw new Error("Ingen autentisert bruker");
 
   const { data: inserted, error: insErr } = await supabase
     .from("profiles")
@@ -59,7 +59,7 @@ export async function registerUserWithUsername(username: string): Promise<LoginR
 
 export async function loginUserWithUsername(username: string): Promise<LoginResult> {
   const trimmed = username.trim();
-  if (!trimmed) throw new Error("Username is required.");
+  if (!trimmed) throw new Error("Brukernavn er nødvendig.");
 
   await ensureSession();
 
@@ -72,7 +72,7 @@ export async function loginUserWithUsername(username: string): Promise<LoginResu
   if (error) throw new Error(error.message);
 
   const profile = (data?.[0] ?? null) as Profile | null;
-  if (!profile) throw new Error("User not found.");
+  if (!profile) throw new Error("Fant ikke brukeren. Trykket du registrer?");
 
   return { profile, role: profile.role };
 }
