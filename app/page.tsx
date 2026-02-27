@@ -21,7 +21,7 @@ export default function LoginPage() {
       
       // If username is not taken we ask if user wants to register with it, otherwise we just log them in as admin
       if (!is_active_user) {
-        const proceed = confirm(`Username "${username}" is available. Do you want to register with it?`);
+        const proceed = confirm(`Brukernavnet "${username}" er tilgjengelig. Vil du registrere deg med det?`);
         if (proceed) {
           const { profile } = await registerUserWithUsername(username);
           router.push(profile.role === "admin" ? "/admin" : "/drink"); 
@@ -34,7 +34,7 @@ export default function LoginPage() {
       
     } catch (err: any) {
       console.error("Login error:", err);
-      setError(err?.message ?? "Login failed");
+      setError(err?.message ?? "Klarte ikke å logge deg inn");
     } finally {
       setLoading(false);
     }
@@ -48,7 +48,7 @@ export default function LoginPage() {
         <form onSubmit={handleLogin} className="space-y-4">
           <input
             type="text"
-            placeholder="Enter username"
+            placeholder="Skriv inn brukernavn (Gjerne navnet ditt!)"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="w-full border rounded px-4 py-2"
@@ -61,7 +61,7 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full bg-black text-white py-2 rounded disabled:opacity-50"
           >
-            {loading ? "Signing in..." : "Enter"}
+            {loading ? "Logger inn..." : "Logg inn"}
           </button>
         </form>
       </div>
