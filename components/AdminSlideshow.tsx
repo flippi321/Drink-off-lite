@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { fetchSlideshowImages, type SlideshowImage } from "@/utils/admin_images_service";
+import { type SlideshowImage } from "@/types/admin_img_types";
 
 type Props = {
   intervalMs?: number;
@@ -25,6 +26,7 @@ export default function AdminSlideshow({
       setError(null);
       setLoading(true);
       const next = await fetchSlideshowImages({ limit });
+      console.log("Fetched slideshow images:", next);
       setImages(next);
       setIdx(0);
     } catch (e: any) {
