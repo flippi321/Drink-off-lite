@@ -25,7 +25,7 @@ export default function AdminSlideshow({
     try {
       setError(null);
       setLoading(true);
-      const next = await fetchSlideshowImages({ limit });
+      const next = await fetchSlideshowImages(limit);
       console.log("Fetched slideshow images:", next);
       setImages(next);
       setIdx(0);
