@@ -112,9 +112,9 @@ export default function DrinkRegistration() {
       "w-full",
       "rounded-xl",
       "border-2",
-      "border-white",
+      "border-foreground",
       "bg-transparent",
-      "text-white",
+      "text-foreground",
       "font-semibold",
       "py-4",
       "px-3",
@@ -125,7 +125,7 @@ export default function DrinkRegistration() {
       "transition",
       "disabled:opacity-40",
       "disabled:cursor-not-allowed",
-      active ? "ring-2 ring-white/60 bg-white/10" : "hover:bg-white/10",
+      active ? "ring-2 ring-foreground/40 bg-foreground/10" : "hover:bg-foreground/10",
     ].join(" ");
 
   const collapsedTypeButtonClass =
@@ -133,9 +133,9 @@ export default function DrinkRegistration() {
       "w-full",
       "rounded-xl",
       "border-2",
-      "border-white",
+      "border-foreground",
       "bg-transparent",
-      "text-white",
+      "text-foreground",
       "font-semibold",
       "py-3", // flatter / less height
       "px-4",
@@ -144,16 +144,17 @@ export default function DrinkRegistration() {
       "justify-center",
       "gap-3",
       "transition",
-      "hover:bg-white/10",
+      "hover:bg-foreground/10",
       "disabled:opacity-40",
       "disabled:cursor-not-allowed",
     ].join(" ");
 
   const actionButtonClass =
-    "w-full py-3 rounded-xl border-2 border-white bg-transparent text-white font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white/10 transition";
+    "w-full py-3 rounded-xl border-2 border-foreground bg-transparent text-foreground font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-foreground/10 transition";
 
+  // Primary CTA: inverse of theme foreground/background
   const submitButtonClass =
-    "w-full py-3 rounded-xl bg-white text-black font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition";
+    "w-full py-3 rounded-xl bg-foreground text-background font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition";
 
   const instruction = useMemo(() => {
     if (!selectedType) return "Velg en type drikke!";
@@ -202,13 +203,12 @@ export default function DrinkRegistration() {
   }
 
   return (
-    <section className="w-full max-w-md space-y-4 text-white">
+    <section className="w-full max-w-md space-y-4 text-foreground">
       <h2 className="text-lg font-semibold">Registrer en drikk</h2>
       <p className="text-sm opacity-80">{instruction}</p>
 
       {/* Type selector */}
       {!selectedType ? (
-        // 2x2 Type Grid (initial)
         <div className="grid grid-cols-2 gap-3">
           {TYPES.map((t) => (
             <button
@@ -228,7 +228,6 @@ export default function DrinkRegistration() {
           ))}
         </div>
       ) : (
-        // Collapsed selector (after choosing)
         <button
           type="button"
           className={collapsedTypeButtonClass}
@@ -274,7 +273,7 @@ export default function DrinkRegistration() {
           <img
             src={previewUrl}
             alt="Selfie preview"
-            className="w-full rounded-xl border-2 border-white/60"
+            className="w-full rounded-xl border-2 border-foreground/60"
           />
         )}
       </div>
@@ -289,8 +288,8 @@ export default function DrinkRegistration() {
         {submitting ? "Registrerer..." : "Registrer drikken!"}
       </button>
 
-      {successMsg && <p className="text-sm text-green-300">{successMsg}</p>}
-      {errorMsg && <p className="text-sm text-red-300">{errorMsg}</p>}
+      {successMsg && <p className="text-sm text-green-700 dark:text-green-300">{successMsg}</p>}
+      {errorMsg && <p className="text-sm text-red-700 dark:text-red-300">{errorMsg}</p>}
     </section>
   );
 }
