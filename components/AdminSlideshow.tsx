@@ -96,14 +96,14 @@ export default function AdminSlideshow({
       </div>
 
       <div className="flex-1 border rounded overflow-hidden bg-black/5 flex items-center justify-center">
-        {loading && <p className="text-sm opacity-70">Loading images…</p>}
+        {loading && <p className="text-sm opacity-70">Laster bilder…</p>}
 
         {!loading && error && (
           <p className="text-sm text-red-600 p-4">{error}</p>
         )}
 
         {!loading && !error && images.length === 0 && (
-          <p className="text-sm opacity-70 p-4">No images yet.</p>
+          <p className="text-sm opacity-70 p-4">Ingen bilder er tatt ennå</p>
         )}
         
         {!loading && !error && current && (
