@@ -67,12 +67,24 @@ export async function registerDrink(params: {
   if (upErr) throw new Error(upErr.message);
 
   // 3) Update drink with photo_path
-  const { error: updErr } = await supabase
+  const { data: updated, error: updErr } = await supabase
     .from("drinks")
     .update({ photo_path: photoPath })
-    .eq("id", drinkId);
+    .match({ id: drinkId, user_id: userId })
+    .select("id, photo_path")
+    .maybeSingle();
 
   if (updErr) throw new Error(updErr.message);
+
+  if (!updated) {
+    throw new Error(
+      "No drink row was updated. Most likely: UPDATE is blocked by RLS, or user_id doesn't match the inserted row."
+    );
+  }
+
+  if (!updated.photo_path) {
+    throw new Error("Update ran but photo_path is still null.");
+  }
 
   return { drinkId, photoPath };
 }
