@@ -5,6 +5,94 @@ import { registerDrink, type DrinkType } from "@/utils/drink_service";
 
 const TYPES: DrinkType[] = ["Øl", "Vin", "Shot", "Annet"];
 
+/* ---------------- Icons ---------------- */
+
+function BeerIcon() {
+  return (
+    <svg
+      className="h-6 w-6"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M6 8h8v10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V8z" />
+      <path d="M14 10h2a2 2 0 0 1 0 4h-2" />
+      <path d="M7 5h6v3H7z" />
+    </svg>
+  );
+}
+
+function WineIcon() {
+  return (
+    <svg
+      className="h-6 w-6"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M6 3h12v4a6 6 0 0 1-12 0V3z" />
+      <path d="M12 13v6" />
+      <path d="M8 21h8" />
+    </svg>
+  );
+}
+
+function ShotIcon() {
+  return (
+    <svg
+      className="h-6 w-6"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M8 3h8l-2 14H10L8 3z" />
+      <path d="M9 3h6" />
+    </svg>
+  );
+}
+
+function OtherIcon() {
+  return (
+    <svg
+      className="h-6 w-6"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 8v4" />
+      <path d="M12 16h.01" />
+    </svg>
+  );
+}
+
+function getIcon(type: DrinkType) {
+  switch (type) {
+    case "Øl":
+      return <BeerIcon />;
+    case "Vin":
+      return <WineIcon />;
+    case "Shot":
+      return <ShotIcon />;
+    default:
+      return <OtherIcon />;
+  }
+}
+
+/* ---------------- Component ---------------- */
+
 export default function DrinkRegistration() {
   const [selectedType, setSelectedType] = useState<DrinkType | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -23,7 +111,7 @@ export default function DrinkRegistration() {
     [
       "w-full",
       "rounded-xl",
-      "border-2", // semi-thick
+      "border-2",
       "border-white",
       "bg-transparent",
       "text-white",
@@ -33,11 +121,11 @@ export default function DrinkRegistration() {
       "flex",
       "items-center",
       "justify-center",
-      "gap-2",
+      "gap-3",
       "transition",
       "disabled:opacity-40",
       "disabled:cursor-not-allowed",
-      active ? "ring-2 ring-white/60" : "hover:bg-white/10",
+      active ? "ring-2 ring-white/60 bg-white/10" : "hover:bg-white/10",
     ].join(" ");
 
   const actionButtonClass =
@@ -78,7 +166,7 @@ export default function DrinkRegistration() {
 
     try {
       await registerDrink({ type: selectedType, photoFile, amount: 1 });
-      setSuccessMsg(`Registered: ${selectedType} ✅`);
+      setSuccessMsg(`Registrert: ${selectedType} ✅`);
 
       setPhotoFile(null);
       if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -86,7 +174,7 @@ export default function DrinkRegistration() {
 
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (e: any) {
-      setErrorMsg(e?.message ?? "Failed to register drink");
+      setErrorMsg(e?.message ?? "Kunne ikke registrere drikken");
     } finally {
       setSubmitting(false);
     }
@@ -94,10 +182,10 @@ export default function DrinkRegistration() {
 
   return (
     <section className="w-full max-w-md space-y-4 text-white">
-      <h2 className="text-lg font-semibold">Register a drink</h2>
+      <h2 className="text-lg font-semibold">Registrer en drikk</h2>
       <p className="text-sm opacity-80">{instruction}</p>
 
-      {/* Type selector (2x2) */}
+      {/* 2x2 Type Grid */}
       <div className="grid grid-cols-2 gap-3">
         {TYPES.map((t) => (
           <button
@@ -111,20 +199,13 @@ export default function DrinkRegistration() {
             }}
             disabled={submitting}
           >
-            {/* Icon placeholder (you'll replace later) */}
-            <span
-              aria-hidden="true"
-              className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/60 text-xs"
-              title="icon placeholder"
-            >
-              +
-            </span>
+            {getIcon(t)}
             <span>{t}</span>
           </button>
         ))}
       </div>
 
-      {/* Capture selfie */}
+      {/* Camera */}
       <div className="space-y-2">
         <input
           ref={fileInputRef}
@@ -145,7 +226,6 @@ export default function DrinkRegistration() {
         </button>
 
         {previewUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={previewUrl}
             alt="Selfie preview"
@@ -164,7 +244,6 @@ export default function DrinkRegistration() {
         {submitting ? "Registrerer..." : "Registrer drikken!"}
       </button>
 
-      {/* Messages */}
       {successMsg && <p className="text-sm text-green-300">{successMsg}</p>}
       {errorMsg && <p className="text-sm text-red-300">{errorMsg}</p>}
     </section>
