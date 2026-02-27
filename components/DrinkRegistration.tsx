@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import { registerDrink, type DrinkType } from "@/utils/drink_service";
 
-const TYPES: DrinkType[] = ["Beer", "Wine", "Shot", "Other"];
+const TYPES: DrinkType[] = ["Øl", "Vin", "Shot", "Annet"];
 
 export default function DrinkRegistration() {
   const [selectedType, setSelectedType] = useState<DrinkType | null>(null);
@@ -19,15 +19,37 @@ export default function DrinkRegistration() {
   const canCapture = selectedType !== null;
   const canSubmit = selectedType !== null && photoFile !== null && !submitting;
 
-  const buttonClass = (active: boolean) =>
-    `flex-1 py-3 rounded border text-center font-medium ${
-      active ? "bg-black text-white" : "bg-white"
-    }`;
+  const typeButtonClass = (active: boolean) =>
+    [
+      "w-full",
+      "rounded-xl",
+      "border-2", // semi-thick
+      "border-white",
+      "bg-transparent",
+      "text-white",
+      "font-semibold",
+      "py-4",
+      "px-3",
+      "flex",
+      "items-center",
+      "justify-center",
+      "gap-2",
+      "transition",
+      "disabled:opacity-40",
+      "disabled:cursor-not-allowed",
+      active ? "ring-2 ring-white/60" : "hover:bg-white/10",
+    ].join(" ");
+
+  const actionButtonClass =
+    "w-full py-3 rounded-xl border-2 border-white bg-transparent text-white font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white/10 transition";
+
+  const submitButtonClass =
+    "w-full py-3 rounded-xl bg-white text-black font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition";
 
   const instruction = useMemo(() => {
-    if (!selectedType) return "1) Choose a drink type.";
-    if (!photoFile) return "2) Take a selfie with it.";
-    return "3) Register the drink.";
+    if (!selectedType) return "Velg en type drikke!";
+    if (!photoFile) return "Ta et selfie med den.";
+    return "Registrer drikken.";
   }, [selectedType, photoFile]);
 
   function onPickPhotoClick() {
@@ -58,12 +80,10 @@ export default function DrinkRegistration() {
       await registerDrink({ type: selectedType, photoFile, amount: 1 });
       setSuccessMsg(`Registered: ${selectedType} ✅`);
 
-      // Reset form (keep type optional—your choice)
       setPhotoFile(null);
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
 
-      // Clear native file input so user can re-pick same image if needed
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (e: any) {
       setErrorMsg(e?.message ?? "Failed to register drink");
@@ -73,17 +93,17 @@ export default function DrinkRegistration() {
   }
 
   return (
-    <section className="w-full max-w-md space-y-4">
+    <section className="w-full max-w-md space-y-4 text-white">
       <h2 className="text-lg font-semibold">Register a drink</h2>
-      <p className="text-sm opacity-70">{instruction}</p>
+      <p className="text-sm opacity-80">{instruction}</p>
 
-      {/* Type selector */}
-      <div className="flex gap-2">
+      {/* Type selector (2x2) */}
+      <div className="grid grid-cols-2 gap-3">
         {TYPES.map((t) => (
           <button
             key={t}
             type="button"
-            className={buttonClass(selectedType === t)}
+            className={typeButtonClass(selectedType === t)}
             onClick={() => {
               setSelectedType(t);
               setSuccessMsg(null);
@@ -91,7 +111,15 @@ export default function DrinkRegistration() {
             }}
             disabled={submitting}
           >
-            {t}
+            {/* Icon placeholder (you'll replace later) */}
+            <span
+              aria-hidden="true"
+              className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/60 text-xs"
+              title="icon placeholder"
+            >
+              +
+            </span>
+            <span>{t}</span>
           </button>
         ))}
       </div>
@@ -111,9 +139,9 @@ export default function DrinkRegistration() {
           type="button"
           onClick={onPickPhotoClick}
           disabled={!canCapture || submitting}
-          className="w-full py-3 rounded border bg-white disabled:opacity-50"
+          className={actionButtonClass}
         >
-          {photoFile ? "Retake selfie" : "Take selfie"}
+          {photoFile ? "Ta bilde på nytt?" : "Ta et selfie med drikken!"}
         </button>
 
         {previewUrl && (
@@ -121,7 +149,7 @@ export default function DrinkRegistration() {
           <img
             src={previewUrl}
             alt="Selfie preview"
-            className="w-full rounded border"
+            className="w-full rounded-xl border-2 border-white/60"
           />
         )}
       </div>
@@ -131,14 +159,14 @@ export default function DrinkRegistration() {
         type="button"
         onClick={onSubmit}
         disabled={!canSubmit}
-        className="w-full py-3 rounded bg-black text-white disabled:opacity-50"
+        className={submitButtonClass}
       >
-        {submitting ? "Registering…" : "Register drink"}
+        {submitting ? "Registrerer..." : "Registrer drikken!"}
       </button>
 
       {/* Messages */}
-      {successMsg && <p className="text-sm text-green-700">{successMsg}</p>}
-      {errorMsg && <p className="text-sm text-red-600">{errorMsg}</p>}
+      {successMsg && <p className="text-sm text-green-300">{successMsg}</p>}
+      {errorMsg && <p className="text-sm text-red-300">{errorMsg}</p>}
     </section>
   );
 }
