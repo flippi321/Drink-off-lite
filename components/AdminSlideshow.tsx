@@ -12,24 +12,28 @@ type Props = {
 export default function AdminSlideshow({ intervalMs = 3500, limit = 200 }: Props) {
   const [images, setImages] = useState<SlideshowImage[]>([]);
   const [idx, setIdx] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // ONLY for initial load / refresh list
   const [fadeIn, setFadeIn] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const timerRef = useRef<number | null>(null);
+  const refreshingRef = useRef(false);
 
   async function refresh() {
+    if (refreshingRef.current) return; // avoid double refreshes
+    refreshingRef.current = true;
+
     try {
       setError(null);
       setLoading(true);
       const next = await fetchSlideshowImages(limit);
-      console.log("Fetched slideshow images:", next);
       setImages(next);
       setIdx(0);
     } catch (e: any) {
       setError(e?.message ?? "Failed to load slideshow images");
     } finally {
       setLoading(false);
+      refreshingRef.current = false;
     }
   }
 
@@ -39,7 +43,7 @@ export default function AdminSlideshow({ intervalMs = 3500, limit = 200 }: Props
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [limit]);
 
-  // Advance loop
+  // Advance loop (never toggles loading)
   useEffect(() => {
     if (loading) return;
     if (images.length === 0) return;
@@ -52,15 +56,13 @@ export default function AdminSlideshow({ intervalMs = 3500, limit = 200 }: Props
     clear();
 
     timerRef.current = window.setInterval(() => {
-      // start fade out
       setFadeIn(false);
 
-      // wait for fade-out
       window.setTimeout(() => {
         setIdx((prev) => {
           const next = prev + 1;
 
-          // Wrap -> refresh list
+          // Wrap -> refresh list (in background, keep showing current image)
           if (next >= images.length) {
             refresh();
             return 0;
@@ -68,7 +70,6 @@ export default function AdminSlideshow({ intervalMs = 3500, limit = 200 }: Props
           return next;
         });
 
-        // fade back in
         setFadeIn(true);
       }, 250);
     }, intervalMs);
@@ -93,7 +94,8 @@ export default function AdminSlideshow({ intervalMs = 3500, limit = 200 }: Props
       </div>
 
       <div className="flex-1 border rounded overflow-hidden bg-black/5 flex items-center justify-center p-4">
-        {loading && <p className="text-sm opacity-70">Laster bilder…</p>}
+        {/* Only show this on FIRST load (or if list refresh happens while there is no current image) */}
+        {loading && !current && <p className="text-sm opacity-70">Laster bilder…</p>}
 
         {!loading && error && <p className="text-sm text-red-600 p-4">{error}</p>}
 
@@ -101,7 +103,7 @@ export default function AdminSlideshow({ intervalMs = 3500, limit = 200 }: Props
           <p className="text-sm opacity-70 p-4">Ingen bilder er tatt ennå</p>
         )}
 
-        {!loading && !error && current && (
+        {!error && current && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={current.url}
