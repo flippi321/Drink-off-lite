@@ -128,6 +128,27 @@ export default function DrinkRegistration() {
       active ? "ring-2 ring-white/60 bg-white/10" : "hover:bg-white/10",
     ].join(" ");
 
+  const collapsedTypeButtonClass =
+    [
+      "w-full",
+      "rounded-xl",
+      "border-2",
+      "border-white",
+      "bg-transparent",
+      "text-white",
+      "font-semibold",
+      "py-3", // flatter / less height
+      "px-4",
+      "flex",
+      "items-center",
+      "justify-center",
+      "gap-3",
+      "transition",
+      "hover:bg-white/10",
+      "disabled:opacity-40",
+      "disabled:cursor-not-allowed",
+    ].join(" ");
+
   const actionButtonClass =
     "w-full py-3 rounded-xl border-2 border-white bg-transparent text-white font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white/10 transition";
 
@@ -185,25 +206,49 @@ export default function DrinkRegistration() {
       <h2 className="text-lg font-semibold">Registrer en drikk</h2>
       <p className="text-sm opacity-80">{instruction}</p>
 
-      {/* 2x2 Type Grid */}
-      <div className="grid grid-cols-2 gap-3">
-        {TYPES.map((t) => (
-          <button
-            key={t}
-            type="button"
-            className={typeButtonClass(selectedType === t)}
-            onClick={() => {
-              setSelectedType(t);
-              setSuccessMsg(null);
-              setErrorMsg(null);
-            }}
-            disabled={submitting}
-          >
-            {getIcon(t)}
-            <span>{t}</span>
-          </button>
-        ))}
-      </div>
+      {/* Type selector */}
+      {!selectedType ? (
+        // 2x2 Type Grid (initial)
+        <div className="grid grid-cols-2 gap-3">
+          {TYPES.map((t) => (
+            <button
+              key={t}
+              type="button"
+              className={typeButtonClass(false)}
+              onClick={() => {
+                setSelectedType(t);
+                setSuccessMsg(null);
+                setErrorMsg(null);
+              }}
+              disabled={submitting}
+            >
+              {getIcon(t)}
+              <span>{t}</span>
+            </button>
+          ))}
+        </div>
+      ) : (
+        // Collapsed selector (after choosing)
+        <button
+          type="button"
+          className={collapsedTypeButtonClass}
+          onClick={() => {
+            setSelectedType(null);
+            setPhotoFile(null);
+            if (previewUrl) URL.revokeObjectURL(previewUrl);
+            setPreviewUrl(null);
+            setSuccessMsg(null);
+            setErrorMsg(null);
+            if (fileInputRef.current) fileInputRef.current.value = "";
+          }}
+          disabled={submitting}
+        >
+          <span className="shrink-0 opacity-90">{getIcon(selectedType)}</span>
+          <span className="text-sm md:text-base">
+            Du har valgt <span className="font-extrabold">{selectedType}</span>. Trykk her for å bytte!
+          </span>
+        </button>
+      )}
 
       {/* Camera */}
       <div className="space-y-2">
