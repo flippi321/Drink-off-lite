@@ -91,7 +91,7 @@ export default function AdminSlideshow({
           onClick={() => refresh()}
           className="text-sm underline opacity-80 hover:opacity-100"
         >
-          Refresh now
+          Oppdater
         </button>
       </div>
 
