@@ -1,26 +1,34 @@
 import { supabase } from "@/utils/supabase";
-import { Profile, UserRole } from "@/types/user_types";
+import type { Profile, UserRole } from "@/types/user_types";
 
 type LoginResult = {
   profile: Profile;
   role: UserRole;
 };
 
+async function ensureSession() {
+  const { data } = await supabase.auth.getSession();
+  if (!data.session) {
+    const { error } = await supabase.auth.signInAnonymously();
+    if (error) throw new Error(error.message);
+  }
+}
+
 export async function isUsernameTaken(username: string): Promise<boolean> {
   const trimmed = username.trim();
+  if (!trimmed) return false;
+
+  // Ensure consistent RLS behavior on first load
+  await ensureSession();
 
   const { data, error } = await supabase
     .from("profiles")
     .select("id")
     .eq("username", trimmed)
-    .maybeSingle();
+    .limit(1);
 
-  if (error && error.code !== "PGRST116") {
-    // PGRST116 = no rows found (normal case)
-    throw new Error(error.message);
-  }
-
-  return !!data;
+  if (error) throw new Error(error.message);
+  return (data?.length ?? 0) > 0;
 }
 
 export async function registerUserWithUsername(username: string): Promise<LoginResult> {
@@ -29,43 +37,42 @@ export async function registerUserWithUsername(username: string): Promise<LoginR
     throw new Error("Username must be 2–24 characters.");
   }
 
-  // 1) Create Auth user/session
-  const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
-  if (authError) throw new Error(authError.message);
+  // Always create a session first
+  await ensureSession();
 
-  const userId = authData.user?.id;
-  if (!userId) throw new Error("No user returned from anonymous sign-in");
+  const { data: userData, error: userErr } = await supabase.auth.getUser();
+  if (userErr) throw new Error(userErr.message);
+  const userId = userData.user?.id;
+  if (!userId) throw new Error("No authenticated user");
 
-  // 2) Create profile (register semantics)
-  const { data: profile, error: insErr } = await supabase
+  const { data: inserted, error: insErr } = await supabase
     .from("profiles")
     .insert({ id: userId, username: trimmed })
     .select("id, username, role, created_at")
     .single();
 
   if (insErr) throw new Error(insErr.message);
-  return { profile: profile as Profile, role: (profile as Profile).role };
+
+  const profile = inserted as Profile;
+  return { profile, role: profile.role };
 }
 
 export async function loginUserWithUsername(username: string): Promise<LoginResult> {
   const trimmed = username.trim();
+  if (!trimmed) throw new Error("Username is required.");
 
-  // Ensure we are authenticated so RLS (authenticated) can read profiles
-  const { data: sessionData } = await supabase.auth.getSession();
-  if (!sessionData.session) {
-    const { error: authError } = await supabase.auth.signInAnonymously();
-    if (authError) throw new Error(authError.message);
-  }
+  await ensureSession();
 
-  const { data: profile, error } = await supabase
+  const { data, error } = await supabase
     .from("profiles")
     .select("id, username, role, created_at")
     .eq("username", trimmed)
-    .single();
+    .limit(1);
 
   if (error) throw new Error(error.message);
 
-  const p = profile as Profile;
+  const profile = (data?.[0] ?? null) as Profile | null;
+  if (!profile) throw new Error("User not found.");
 
-  return { profile: p, role: p.role };
+  return { profile, role: profile.role };
 }
