@@ -85,7 +85,7 @@ export default function AdminSlideshow({
   return (
     <section className="w-full h-full flex flex-col">
       <div className="flex items-baseline justify-between mb-3">
-        <h2 className="text-lg font-semibold">Admin panel</h2>
+        <h2 className="text-lg font-semibold">Alle bilder tatt idag</h2>
         <button
           type="button"
           onClick={() => refresh()}
